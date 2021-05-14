@@ -68,6 +68,23 @@ const generateId = () => {
   return maxId + 1;
 };
 
+//Written myself
+app.put("/api/notes/:id", (request, response) => {
+  const body = request.body;
+
+  const note = {
+    content: body.content,
+    important: body.important,
+    date: body.Date,
+    id: body.id,
+  };
+
+  //server side
+  notes = notes.map((n) => (n.id !== body.id ? n : note));
+
+  response.json(note);
+});
+
 app.post("/api/notes", (request, response) => {
   const body = request.body;
 
