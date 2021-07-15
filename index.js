@@ -91,11 +91,19 @@ app.get("/api/notes/:id", (request, response) => {
     });
 });
 
-app.delete("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id);
-  notes = notes.filter((note) => note.id !== id);
+// app.delete("/api/notes/:id", (request, response) => {
+//   const id = Number(request.params.id);
+//   notes = notes.filter((note) => note.id !== id);
 
-  response.status(204).end();
+//   response.status(204).end();
+// });
+
+app.delete("/api/notes/:id", (request, response, next) => {
+  Note.findByIdAndRemove(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
 const generateId = () => {
@@ -103,21 +111,36 @@ const generateId = () => {
   return maxId + 1;
 };
 
-//Written myself
-app.put("/api/notes/:id", (request, response) => {
+// //Written myself
+// app.put("/api/notes/:id", (request, response) => {
+//   const body = request.body;
+
+//   const note = {
+//     content: body.content,
+//     important: body.important,
+//     date: body.Date,
+//     id: body.id,
+//   };
+
+//   //server side
+//   notes = notes.map((n) => (n.id !== body.id ? n : note));
+
+//   response.json(note);
+// });
+
+app.put("/api/notes/:id", (request, response, next) => {
   const body = request.body;
 
   const note = {
     content: body.content,
     important: body.important,
-    date: body.Date,
-    id: body.id,
   };
 
-  //server side
-  notes = notes.map((n) => (n.id !== body.id ? n : note));
-
-  response.json(note);
+  Note.findByIdAndUpdate(request.params.id, note, { new: true })
+    .then((updatedNote) => {
+      response.json(updatedNote);
+    })
+    .catch((error) => next(error));
 });
 
 // app.post("/api/notes", (request, response) => {
