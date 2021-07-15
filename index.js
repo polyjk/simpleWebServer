@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
@@ -18,30 +19,8 @@ const requestLogger = (request, response, next) => {
 app.use(requestLogger);
 
 //John - START - Mongoose connection code
-const url = `mongodb+srv://fullstack:123password@cluster0.zs9yw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-
-mongoose.connect(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-});
-
-const noteSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
-  important: Boolean,
-});
-
-const Note = mongoose.model("Note", noteSchema);
-
-noteSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
+// const Note = mongoose.model("Note", noteSchema);
+const Note = require("./models/note");
 //John - END - Mongoose connection code
 
 let notes = [
@@ -147,7 +126,8 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint);
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
