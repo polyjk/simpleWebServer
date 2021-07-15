@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
 
 const cors = require("cors");
@@ -15,6 +16,33 @@ const requestLogger = (request, response, next) => {
 };
 
 app.use(requestLogger);
+
+//John - START - Mongoose connection code
+const url = `mongodb+srv://fullstack:123password@cluster0.zs9yw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
+mongoose.connect(url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+});
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  date: Date,
+  important: Boolean,
+});
+
+const Note = mongoose.model("Note", noteSchema);
+
+noteSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+//John - END - Mongoose connection code
 
 let notes = [
   {
@@ -42,8 +70,14 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/notes", (request, response) => {
-  response.json(notes);
+  Note.find({}).then((notes) => {
+    response.json(notes);
+  });
 });
+
+// app.get("/api/notes", (request, response) => {
+//   response.json(notes);
+// });
 
 app.get("/api/notes/:id", (request, response) => {
   const id = Number(request.params.id);
